@@ -2,18 +2,64 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <link rel="stylesheet" type="text/css" href="./vendors/uikit.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <div id="app">
+      <div id="panel">
+        <button class="uk-button uk-button-primary uk-align-right" v-if="state === 'list'" @click="changeState('new')">+</button>
+        <button class="uk-button uk-button-danger uk-align-right" v-if="state === 'new'" @click="changeState('list')">x</button>
+      </div>
+      <div id="content">
+        <div v-if="state === 'list'">
+          List
+          <ul>
+            <li v-for='(repo, index) in repositories'>
+              {{index}} {{repo}} <span v-on:click="changeState('edit', index)">edit</span>
+            </li>
+          </ul>
+        </div>
+        <div v-else-if="state === 'new'">
+          <form class="uk-form" v-on:submit.prevent="addRepository">
+            <fieldset>
+              <legend>New Repository</legend>
+              <div class="uk-form-row">
+                <input v-model="newRepository" class="uk-width-1-1">
+              </div>
+              <div class="uk-form-row">
+                <button class="uk-button uk-width-1-1">Save</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div v-else-if="state === 'edit'">
+          <h1>Edit</h1>
+          <form class="uk-form" v-on:submit.prevent="updateRepository">
+            <fieldset>
+              <legend>Update Repository</legend>
+              <div class="uk-form-row">
+                <input v-model="repositories[currentIndex]" class="uk-width-1-1">
+              </div>
+              <div class="uk-form-row">
+                <button class="uk-button uk-width-1-2 uk-button-danger" v-on:click.prevent="removeRepository">Remove</button>
+                <button class="uk-button uk-width-1-2 uk-button-success">Update</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div v-else-if="state === 'setting'">
+        </div>
+        <div v-else>
+          <h1>Something Wrong!</h1>
+        </div>
+      </div>
+    </div>
   </body>
-
+  <script src="./vendors/jquery.js"></script>
+  <script src="./vendors/uikit.js"></script>
+  <script src="./vendors/vue.js"></script>
   <script>
-    // You can also require other files to run in this process
-    require('./renderer.js')
+  // You can also require other files to run in this process
+  require('./renderer.js')
   </script>
 </html>
