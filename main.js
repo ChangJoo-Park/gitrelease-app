@@ -1,13 +1,29 @@
 const electron = require('electron')
 const Menubar = require('menubar')
+// DB
+const Datastore = require('nedb')
+const ipcMain = electron.ipcMain
 
-console.log('initialize menubar');
-const menubar = Menubar();
+let db
 
-menubar.on('ready', function () {
-  console.log('Application is Ready');
+
+const mb = Menubar()
+
+mb.on('ready', function () {
+  db = new Datastore({filename: '~/database.db', autoload: true})
+  ipcMain.on('db:initialize', function (event, arg) {
+    console.log('db:initialize')
+    db.find({}, function (err, docs){
+      console.log('send db')
+      event.sender.send('db:responseDB', docs)
+    })
+  })
+  db.find({}, function (err, docs) {
+
+  })
 })
 
-menubar.on('after-create-window', function () {
-  console.log('after-create-window');
+mb.on('after-create-window', function () {
+  mb.window.openDevTools()
 })
+

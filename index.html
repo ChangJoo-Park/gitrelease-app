@@ -2,32 +2,49 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="./vendors/uikit.css">
+      <link rel="stylesheet" type="text/css" href="./vendors/uikit.css">
+      <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <div id="app">
       <div id="panel">
-        <button class="uk-button uk-button-primary uk-align-right" v-if="state === 'list'" @click="changeState('new')">+</button>
-        <button class="uk-button uk-button-danger uk-align-right" v-if="state === 'new'" @click="changeState('list')">x</button>
+        <button class="uk-button uk-button-primary" v-if="state === 'list'" @click="changeState('new')">+</button>
+        <button class="uk-button uk-button-danger" v-if="state === 'new'" @click="changeState('list')">x</button>
       </div>
-      <div id="content">
+      <div id="content" class="uk-width-1-1">
         <div v-if="state === 'list'">
-          List
-          <ul>
-            <li v-for='(repo, index) in repositories'>
-              {{index}} {{repo}} <span v-on:click="changeState('edit', index)">edit</span>
-            </li>
-          </ul>
+          <div class="uk-panel uk-panel-box" v-for='(repo, index) in repositories'>
+            <img :src="repo.owner.avatar_url" class="uk-panel-image">
+            <h3 class="uk-panel-title">{{repo.full_name}}</h3>
+            <span v-on:click="changeState('edit', index)">edit</span>
+            <hr>
+            <div>
+              Latest Release
+            </div>
+
+          </div>
+              <!-- <a :href="repo.html_url" target="_blank">{{repo.full_name}}</a> <span v-on:click="changeState('edit', index)">edit</span> -->
         </div>
         <div v-else-if="state === 'new'">
           <form class="uk-form" v-on:submit.prevent="addRepository">
             <fieldset>
               <legend>New Repository</legend>
               <div class="uk-form-row">
-                <input v-model="newRepository" class="uk-width-1-1">
+                <span><strong>ex :</strong>&nbsp;owner/repository</span>
               </div>
               <div class="uk-form-row">
-                <button class="uk-button uk-width-1-1">Save</button>
+                <input v-model="newRepositoryName" class="uk-width-1-1">
+                <div v-if="isLoading">
+                  Now Loading...
+                </div>
+                <div v-else>
+                  <div v-if="newRepository">
+                    <span>{{newRepository.full_name}}</span>
+                    <img :src="newRepository.owner.avatar_url">
+                    <button class="uk-button uk-width-1-1">Save</button>
+                  </div>
+                  <div v-if="requestMessage">{{requestMessage}}</pre>
+                </div>
               </div>
             </fieldset>
           </form>
@@ -38,7 +55,7 @@
             <fieldset>
               <legend>Update Repository</legend>
               <div class="uk-form-row">
-                <input v-model="repositories[currentIndex]" class="uk-width-1-1">
+                <input v-model="newRepositoryName" class="uk-width-1-1">
               </div>
               <div class="uk-form-row">
                 <button class="uk-button uk-width-1-2 uk-button-danger" v-on:click.prevent="removeRepository">Remove</button>
@@ -54,7 +71,10 @@
         </div>
       </div>
     </div>
+    <!-- Templates -->
   </body>
+  <script src="./vendors/lodash.js"></script>
+  <script src="./vendors/axios.js"></script>
   <script src="./vendors/jquery.js"></script>
   <script src="./vendors/uikit.js"></script>
   <script src="./vendors/vue.js"></script>

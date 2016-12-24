@@ -1,0 +1,13 @@
+#app {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 400px;
+  height: 400px;
+}
+
+.uk-panel-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  float: left;
+}
