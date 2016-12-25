@@ -18,7 +18,7 @@
               v-if="state === 'list'"
               @click="checkUpdatedRepositories"
               :disabled="isUnReloadable">
-              R
+              <i class="icon-arrows-cw"></i>
             </button>
             <button v-if="state === 'list'" class="button-default" @click="changeState('setting')">
               <i class="icon-cog"></i>

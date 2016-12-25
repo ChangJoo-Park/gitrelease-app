@@ -215,7 +215,8 @@ const app = new Vue({
       this.getLatestRelease(this.newRepository, function(data) {
         let latestRelease = data;
         this.newRepository.latest_release = latestRelease;
-        ipcRenderer.send('db:add-repository',this.newRepository);
+        const addTarget = JSON.parse(JSON.stringify(this.newRepository));
+        ipcRenderer.send('db:add-repository',addTarget);
         ipcRenderer.on('db:add-repository-response-success', function (event, args) {
           console.log('db:add-repository-response-success');
           const isExists = this.repositories.indexOf(args);
@@ -243,7 +244,8 @@ const app = new Vue({
 
     },
     removeRepository: function (index) {
-      ipcRenderer.send('db:remove-repository', this.repositories[index]);
+      const removeTarget = JSON.parse(JSON.stringify(this.repositories[index]))
+      ipcRenderer.send('db:remove-repository', removeTarget);
       ipcRenderer.on('db:remove-repository-response', function () {
         this.repositories.splice(index, 1)
       }.bind(this))
