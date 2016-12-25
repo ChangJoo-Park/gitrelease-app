@@ -7,7 +7,9 @@ const ipcMain = electron.ipcMain
 let db
 
 
-const mb = Menubar()
+const mb = Menubar({
+  minWidth: 400, minHeight: 400
+})
 
 mb.on('ready', function () {
   db = new Datastore({filename: '~/database.db', autoload: true})

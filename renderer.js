@@ -3,15 +3,32 @@
 // All of the Node.js APIs are available in this process.
 const {ipcRenderer} = require('electron')
 
+const RepositoryComponent = Vue.component('repository', {
+  template: '#repository',
+  props: ['repo'],
+  data: function () {
+    return {
+      isOpen: false
+    }
+  },
+  computed: {
+    compiledMarkdown: function () {
+      return marked(this.repo.latest_release.body, { sanitize: true })
+    }
+  },
+  methods: {
+    toggleOpen: function () {
+      this.isOpen = !this.isOpen;
+    }
+  }
+})
+
 const app = new Vue({
   el: '#app',
   created: function () {
     this.state = 'list'
-    console.log(ipcRenderer)
     ipcRenderer.send('db:initialize')
     ipcRenderer.on('db:responseDB', function(event, args){
-      console.log('response db')
-      console.log(args);
     })
   },
   data: function () {
@@ -21,7 +38,7 @@ const app = new Vue({
       newRepositoryName: '',
       newRepository: '',
       requestMessage: '',
-      currentIndex: -1,
+      isNoRelease: false,
       isLoading: false
     }
   },
@@ -31,18 +48,15 @@ const app = new Vue({
         this.newRepositoryName = '';
         this.newRepository = '';
         this.requestMessage = '';
-        this.currentIndex = -1
-      }
-
-      if(nextState === 'edit') {
-        this.newRepository = this.repositories[this.currentIndex];
-        this.newRepositoryName = this.newRepository.full_name;
       }
     },
     newRepositoryName: function (newName) {
       // newName 형식 체크 해야함
       const validation = this.validateRepo(newName);
       if(!validation.isValid) {
+        this.newRepository = '';
+        this.isLoading = false;
+        this.isNoRelease = false;
         this.requestMessage = validation.message
         return;
       }
@@ -50,6 +64,14 @@ const app = new Vue({
       this.requestMessage = '';
       this.isLoading = true;
       this.getGithub()
+    }
+  },
+  computed: {
+    repositoriesCount: function () {
+      if(this.repositories.length === 1) {
+        return `${this.repositories.length} repository`;
+      }
+      return `${this.repositories.length} repositories`;
     }
   },
   methods: {
@@ -85,25 +107,41 @@ const app = new Vue({
         });
       }, 500
     ),
+    getLatestRelease: function (repo, resolve, reject) {
+      var fullName = repo.full_name;
+      var url = `https://api.github.com/repos/${fullName}/releases/latest`;
+      axios.get(url)
+      .then(function (response){
+        resolve(response.data);
+      })
+      .catch(function (error){
+        reject(error);
+      })
+
+    },
     changeState: function (nextState, repoIndex) {
-      if (nextState === 'edit' && repoIndex !== -1) {
-        this.currentIndex = repoIndex
-      }
       this.state = nextState
     },
     addRepository: function () {
       if(!this.newRepository) {
         return;
       }
-      this.repositories.push(this.newRepository)
-      this.changeState('list')
+      this.requestMessage = 'Load Latest Release...';
+      this.getLatestRelease(this.newRepository, function(data){
+        let latestRelease = data;
+        this.newRepository.latest_release = latestRelease;
+        this.repositories.push(this.newRepository);
+        this.requestMessage = '';
+        this.isNoRelease = false;
+        this.changeState('list')
+      }.bind(this), function (error) {
+        this.requestMessage = 'There is no release.';
+        this.isNoRelease = true;
+      }.bind(this));
+
     },
-    updateRepository: function () {
-      this.changeState('list')
-    },
-    removeRepository: function () {
-      this.repositories.splice(this.currentIndex, 1)
-      this.changeState('list')
+    removeRepository: function (index) {
+      this.repositories.splice(index, 1)
     }
   }
 })

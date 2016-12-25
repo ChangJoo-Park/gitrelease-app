@@ -1,13 +1,52 @@
+html {
+  min-width: 400px;
+  min-height: 400px;
+}
 #app {
   overflow-x: hidden;
   overflow-y: auto;
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  height: 100%;
 }
 
-.uk-panel-image {
+#panel {
+  margin: 10px;
+}
+#content {
+  margin-top: 60px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.button-default {
+  background-color: #fff;
+  color: #000;
+}
+
+.button-small {
+  font-size: .75em;
+}
+.repo-header {
+  vertical-align: middle;
+}
+.img-avatar {
   width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  float: left;
+  height: auto;
+  display: inline-block;
+  vertical-align: middle
+}
+
+.repo-detail {
+  font-size: .8em;
+}
+
+.align-center {
+  margin: 0 auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
 }

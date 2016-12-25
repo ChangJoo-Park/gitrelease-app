@@ -2,46 +2,62 @@
 <html>
   <head>
     <meta charset="UTF-8">
-      <link rel="stylesheet" type="text/css" href="./vendors/uikit.css">
-      <link rel="stylesheet" type="text/css" href="style.css">
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <link rel="stylesheet" type="text/css" href="./vendors/picnic.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <div id="app">
       <div id="panel">
-        <button class="uk-button uk-button-primary" v-if="state === 'list'" @click="changeState('new')">+</button>
-        <button class="uk-button uk-button-danger" v-if="state === 'new'" @click="changeState('list')">x</button>
-      </div>
-      <div id="content" class="uk-width-1-1">
-        <div v-if="state === 'list'">
-          <div class="uk-panel uk-panel-box" v-for='(repo, index) in repositories'>
-            <img :src="repo.owner.avatar_url" class="uk-panel-image">
-            <h3 class="uk-panel-title">{{repo.full_name}}</h3>
-            <span v-on:click="changeState('edit', index)">edit</span>
-            <hr>
-            <div>
-              Latest Release
-            </div>
-
+        <nav>
+          <a href="#" class="brand" @click="changeState('list')">Releases!!</a>
+          <div class="menu">
+            <button v-if="state === 'list'" class="button-default" @click="changeState('setting')">s</button>
+            <button v-if="state === 'list'" @click="changeState('new')">+</button>
+            <button class="button-default" v-if="state !== 'list'" @click="changeState('list')">x</button>
           </div>
-              <!-- <a :href="repo.html_url" target="_blank">{{repo.full_name}}</a> <span v-on:click="changeState('edit', index)">edit</span> -->
+        </nav>
+      </div>
+      <div id="content">
+        <div v-if="state === 'list'">
+          <div v-if="repositories.length === 0">
+            <h3 class="text-center">There is No Repositories!!</h3>
+            <div class="text-center">
+              <button class="pseudo" @click="changeState('new')">Add New One?</button>
+            </div>
+          </div>
+          <div v-else>
+            <h4 class="text-center">{{repositoriesCount}}</h4>
+            <repository
+              v-for='(repo, index) in repositories'
+              v-bind:repo='repo'
+              v-on:remove-repo="removeRepository(index)"
+            ></repository>
+          </div>
         </div>
         <div v-else-if="state === 'new'">
-          <form class="uk-form" v-on:submit.prevent="addRepository">
+          <h3 class="text-center">Add New Repository</h3>
+          <form v-on:submit.prevent="addRepository">
             <fieldset>
-              <legend>New Repository</legend>
-              <div class="uk-form-row">
-                <span><strong>ex :</strong>&nbsp;owner/repository</span>
-              </div>
-              <div class="uk-form-row">
-                <input v-model="newRepositoryName" class="uk-width-1-1">
+              <div>
+                <label>
+                  Repository :
+                  <input v-model="newRepositoryName" placeholder="owner/repository">
+                </label>
+
                 <div v-if="isLoading">
                   Now Loading...
                 </div>
                 <div v-else>
                   <div v-if="newRepository">
-                    <span>{{newRepository.full_name}}</span>
-                    <img :src="newRepository.owner.avatar_url">
-                    <button class="uk-button uk-width-1-1">Save</button>
+                    <div>
+                      <h4>
+                        <img class="img-avatar" :src="newRepository.owner.avatar_url">
+                        <span>{{newRepository.full_name}}</span>
+                      </h4>
+                    </div>
+                    <button v-if="!isNoRelease">Save</button>
+                    <button class="pseudo" v-if="isNoRelease" @click.prevent="changeState('list')">Close</button>
                   </div>
                   <div v-if="requestMessage">{{requestMessage}}</pre>
                 </div>
@@ -49,22 +65,8 @@
             </fieldset>
           </form>
         </div>
-        <div v-else-if="state === 'edit'">
-          <h1>Edit</h1>
-          <form class="uk-form" v-on:submit.prevent="updateRepository">
-            <fieldset>
-              <legend>Update Repository</legend>
-              <div class="uk-form-row">
-                <input v-model="newRepositoryName" class="uk-width-1-1">
-              </div>
-              <div class="uk-form-row">
-                <button class="uk-button uk-width-1-2 uk-button-danger" v-on:click.prevent="removeRepository">Remove</button>
-                <button class="uk-button uk-width-1-2 uk-button-success">Update</button>
-              </div>
-            </fieldset>
-          </form>
-        </div>
         <div v-else-if="state === 'setting'">
+          <h3 class="text-center">Setting</h3>
         </div>
         <div v-else>
           <h1>Something Wrong!</h1>
@@ -72,11 +74,35 @@
       </div>
     </div>
     <!-- Templates -->
+    <template id="repository">
+      <div class="card">
+        <header class="repo-header">
+          <div class="flex one">
+            <div>
+              <h4>
+                <img class="img-avatar" :src="repo.owner.avatar_url">
+                {{repo.full_name}}
+                <span class="label">{{repo.latest_release.tag_name}}</span>
+              </h4>
+            </div>
+          </div>
+        </header>
+        <div>
+          <button class="pseudo button-small" v-on:click="$emit('remove-repo')">
+            Remove
+          </button>
+          <button class="pseudo button-small" v-on:click="toggleOpen">
+            <span v-if="isOpen">Close Details</span>
+            <span v-else>Open Details</span>
+          </button>
+        </div>
+        <footer class="repo-detail" v-show="isOpen" v-html="compiledMarkdown"></footer>
+      </div>
+    </template>
   </body>
+  <script src="./vendors/marked.js"></script>
   <script src="./vendors/lodash.js"></script>
   <script src="./vendors/axios.js"></script>
-  <script src="./vendors/jquery.js"></script>
-  <script src="./vendors/uikit.js"></script>
   <script src="./vendors/vue.js"></script>
   <script>
   // You can also require other files to run in this process
