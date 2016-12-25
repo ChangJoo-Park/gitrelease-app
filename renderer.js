@@ -2,6 +2,21 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 const {ipcRenderer} = require('electron')
+const open = require('open');
+const markedRenderer = new marked.Renderer();
+markedRenderer.link = function(href, title, text) {
+  var external, newWindow, out;
+  external = /^https?:\/\/.+$/.test(href);
+  newWindow = external || title === 'newWindow';
+  out = "<a href=\"" + href + "\"";
+  if (newWindow) {
+    out += ' target="_blank"';
+  }
+  if (title && title !== 'newWindow') {
+    out += " title=\"" + title + "\"";
+  }
+  return out += ">" + text + "</a>";
+};
 
 const RepositoryComponent = Vue.component('repository', {
   template: '#repository',
@@ -13,6 +28,7 @@ const RepositoryComponent = Vue.component('repository', {
   },
   computed: {
     compiledMarkdown: function () {
+      marked.setOptions({renderer: markedRenderer});
       return marked(this.repo.latest_release.body, { sanitize: true })
     }
   },
@@ -77,9 +93,9 @@ const app = new Vue({
     },
     repositoriesCount: function () {
       if(this.repositories.length === 1) {
-        return `${this.repositories.length} repository`;
+        return `${this.repositories.length} Repository`;
       }
-      return `${this.repositories.length} repositories`;
+      return `${this.repositories.length} Repositories`;
     }
   },
   methods: {
@@ -127,7 +143,7 @@ const app = new Vue({
       })
 
     },
-    changeState: function (nextState, repoIndex) {
+    changeState: function (nextState) {
       this.state = nextState
     },
     addRepository: function () {
@@ -138,16 +154,13 @@ const app = new Vue({
       this.getLatestRelease(this.newRepository, function(data) {
         let latestRelease = data;
         this.newRepository.latest_release = latestRelease;
-
         ipcRenderer.send('db:add-repository',this.newRepository);
-
         ipcRenderer.on('db:add-repository-response-success', function (event, args) {
           console.log('db:add-repository-response-success');
           const isExists = this.repositories.indexOf(args);
           if(isExists !== -1) {
             return;
           }
-
           this.repositories.push(this.newRepository);
           this.requestMessage = '';
           this.isNoRelease = false;
@@ -174,4 +187,4 @@ const app = new Vue({
       }.bind(this))
     }
   }
-})
+});

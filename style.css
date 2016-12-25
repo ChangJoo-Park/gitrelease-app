@@ -28,6 +28,14 @@ html {
 .repo-header {
   vertical-align: middle;
 }
+
+.repo-header-link {
+  color: #000;
+}
+.repo-header-link:hover {
+  color: #0074d9;
+}
+
 .img-avatar {
   width: 30px;
   height: auto;

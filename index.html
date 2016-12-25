@@ -72,9 +72,6 @@
             </fieldset>
           </form>
         </div>
-        <div v-else-if="state === 'setting'">
-          <h3 class="text-center">Setting</h3>
-        </div>
         <div v-else>
           <h1>Something Wrong!</h1>
         </div>
@@ -88,24 +85,24 @@
             <div>
               <h4>
                 <img class="img-avatar" :src="repo.owner.avatar_url">
-                {{repo.full_name}}
-                <span class="label">{{repo.latest_release.tag_name}}</span>
+                <a class="repo-header-link" :href="repo.html_url" target="_blank">{{repo.full_name}}</a>
+                <a :href="repo.latest_release.html_url" target="_blank" class="label">
+                  {{repo.latest_release.tag_name}}
+                </a>
               </h4>
             </div>
           </div>
         </header>
         <div>
-          <button class="pseudo button-small" v-on:click="$emit('remove-repo')">
-            Remove
-          </button>
           <button class="pseudo button-small" v-on:click="toggleOpen">
             <span v-if="isOpen">Close</span>
             <span v-else>Details</span>
           </button>
+          <button class="pseudo button-small" v-on:click="$emit('remove-repo')">
+            Remove
+          </button>
         </div>
-        <footer class="repo-detail" v-show="isOpen" v-html="compiledMarkdown">
-          <button>Button!</button>
-        </footer>
+        <footer class="repo-detail" v-show="isOpen" v-html="compiledMarkdown"></footer>
       </div>
     </template>
   </body>

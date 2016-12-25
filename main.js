@@ -3,7 +3,7 @@ const Menubar = require('menubar')
 const ipcMain = electron.ipcMain
 const app = electron.app
 const path = require('path')
-
+const open = require('open')
 
 // DB
 const Datastore = require('nedb')
@@ -23,6 +23,13 @@ mb.on('ready', function () {
       event.sender.send('db:responseDB', docs);
     })
   })
+
+
+  mb.window.webContents.on('new-window', function (event, url) {
+    console.log(url);
+    open(url);
+    event.preventDefault();
+  });
 })
 
 mb.on('after-create-window', function () {

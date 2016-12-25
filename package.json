@@ -26,6 +26,7 @@
   "dependencies": {
     "menubar": "^5.2.0",
     "nedb": "^1.8.0",
+    "open": "0.0.5",
     "path": "^0.12.7"
   }
 }
