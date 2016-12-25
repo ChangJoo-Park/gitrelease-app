@@ -56,9 +56,21 @@ const app = new Vue({
   el: '#app',
   created: function () {
     this.state = 'list'
+    // Load DB
     ipcRenderer.send('db:initialize')
-    ipcRenderer.on('db:responseDB', function (event, args) {
-      this.repositories = args;
+
+    ipcRenderer.on('db:response-setting', function (event, setting) {
+      console.log('bind setting');
+      this.setting = setting;
+      setInterval(function(){
+        this.checkUpdatedRepositories();
+      }.bind(this), this.setting.refreshWhen * MinToMillis)
+    }.bind(this))
+
+    ipcRenderer.on('db:response-repo', function (event, repos) {
+      console.log('bind repos');
+      this.repositories = repos;
+      this.checkUpdatedRepositories();
     }.bind(this))
   },
   data: function () {
@@ -71,15 +83,23 @@ const app = new Vue({
       isNoRelease: false,
       isDisabled: false,
       isLoading: false,
+      isUnReloadable: false,
       refreshTimes: REFRESH_TIMES,
       sortOptions: SORT_OPTIONS,
       setting: {
+        id: 'default',
         sortBy: 'name-desc',
         refreshWhen: 30
       }
     }
   },
   watch: {
+    setting: {
+      handler: function (newSetting, oldSetting) {
+        ipcRenderer.send('db:update-setting', newSetting);
+      },
+      deep: true
+    },
     state: function (nextState, oldState) {
       this.newRepositoryName = '';
       this.newRepository = '';
@@ -234,6 +254,25 @@ const app = new Vue({
           icon: theIcon
       }
       var n = new Notification(theTitle,options);
+    },
+    checkUpdatedRepositories: function () {
+      const vm = this;
+      this.isUnReloadable = true;
+      setTimeout(function() {
+        vm.isUnReloadable = false;
+      }, 1000)
+      this.repositories.forEach(function(repo) {
+        console.log(`Check ${repo.full_name}, current ${repo.latest_release.tag_name}`);
+        vm.getLatestRelease(repo, function (latestRelease) {
+          if (repo.latest_release.tag_name !== latestRelease.tag_name) {
+            repo.latest_release = latestRelease;
+            vm.spawnNotification('Updated!!', repo.full_name);
+          } else  {
+            console.log(`same ${latestRelease.tag_name}`);
+          }
+        }, function () {})
+      })
+
     }
   }
 });

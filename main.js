@@ -19,8 +19,25 @@ const mb = Menubar({
 
 mb.on('ready', function () {
   ipcMain.on('db:initialize', function (event, arg) {
+
+    db.setting.findOne({ id: 'default' }, function (err, doc) {
+      if(doc) {
+        console.log('exist setting');
+        event.sender.send('db:response-setting', doc);
+      } else {
+        const defaultSetting = {
+          id: 'default',
+          sortBy: 'name-desc',
+          refreshWhen: 30
+        }
+        db.setting.insert(defaultSetting, function (err, newSetting) {
+          console.log('new setting', newSetting);
+          event.sender.send('db:response-setting', newSetting);
+        })
+      }
+    });
     db.repos.find({}, function(err, docs){
-      event.sender.send('db:responseDB', docs);
+      event.sender.send('db:response-repo', docs);
     })
   })
 
@@ -57,5 +74,12 @@ ipcMain.on('db:remove-repository', function(event, repo) {
   db.repos.remove({ _id: repo._id }, {}, function (err, numRemoved) {
     console.log('Remove!!', numRemoved)
     event.sender.send('db:remove-repository-response')
+  })
+})
+
+ipcMain.on('db:update-setting', function(event, newSetting) {
+  console.log(newSetting);
+  db.setting.update({ id: newSetting.id }, { $set: { sortBy: newSetting.sortBy, refreshWhen: newSetting.refreshWhen}}, {} , function (){
+
   })
 })

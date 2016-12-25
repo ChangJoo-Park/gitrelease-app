@@ -13,6 +13,13 @@
         <nav>
           <a href="#" class="brand" @click="changeState('list')">Release!!</a>
           <div class="menu">
+            <button
+              class="button-default"
+              v-if="state === 'list'"
+              @click="checkUpdatedRepositories"
+              :disabled="isUnReloadable">
+              R
+            </button>
             <button v-if="state === 'list'" class="button-default" @click="changeState('setting')">
               <i class="icon-cog"></i>
             </button>
