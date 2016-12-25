@@ -36,7 +36,7 @@
           <div v-else>
             <h4 class="text-center">{{repositoriesCount}}</h4>
             <repository
-              v-for='(repo, index) in repositories'
+              v-for='(repo, index) in sortedRepositories'
               v-bind:repo='repo'
               v-on:remove-repo="removeRepository(index)"
             ></repository>

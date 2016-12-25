@@ -36,7 +36,11 @@ html {
 }
 
 .repo-detail {
+  width: 100%;
   font-size: .8em;
+}
+.repo-detail img {
+  width: 100%;
 }
 
 .align-center {

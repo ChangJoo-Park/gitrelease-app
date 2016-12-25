@@ -28,8 +28,9 @@ const app = new Vue({
   created: function () {
     this.state = 'list'
     ipcRenderer.send('db:initialize')
-    ipcRenderer.on('db:responseDB', function(event, args){
-    })
+    ipcRenderer.on('db:responseDB', function (event, args) {
+      this.repositories = args;
+    }.bind(this))
   },
   data: function () {
     return {
@@ -44,11 +45,9 @@ const app = new Vue({
   },
   watch: {
     state: function (nextState, oldState) {
-      if(nextState === 'list') {
-        this.newRepositoryName = '';
-        this.newRepository = '';
-        this.requestMessage = '';
-      }
+      this.newRepositoryName = '';
+      this.newRepository = '';
+      this.requestMessage = '';
     },
     newRepositoryName: function (newName) {
       // newName 형식 체크 해야함
@@ -67,6 +66,12 @@ const app = new Vue({
     }
   },
   computed: {
+    sortedRepositories: function () {
+      return this.repositories.sort(function (a, b) {
+        return (new Date(b.latest_release.published_at).getTime()) -
+               (new Date(a.latest_release.published_at).getTime())
+      });
+    },
     repositoriesCount: function () {
       if(this.repositories.length === 1) {
         return `${this.repositories.length} repository`;
@@ -133,15 +138,22 @@ const app = new Vue({
         this.repositories.push(this.newRepository);
         this.requestMessage = '';
         this.isNoRelease = false;
-        this.changeState('list')
+        ipcRenderer.send('db:add-repository',this.newRepository);
+        ipcRenderer.on('db:add-repository-response', function () {
+          this.changeState('list');
+        }.bind(this))
       }.bind(this), function (error) {
+        console.error(error);
         this.requestMessage = 'There is no release.';
         this.isNoRelease = true;
       }.bind(this));
 
     },
     removeRepository: function (index) {
-      this.repositories.splice(index, 1)
+      ipcRenderer.send('db:remove-repository', this.repositories[index]);
+      ipcRenderer.on('db:remove-repository-response', function () {
+        this.repositories.splice(index, 1)
+      }.bind(this))
     }
   }
 })
