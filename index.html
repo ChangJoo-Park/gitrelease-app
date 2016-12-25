@@ -72,6 +72,19 @@
             </fieldset>
           </form>
         </div>
+        <div v-else-if="state === 'setting'">
+          <h3 class="text-center">Setting</h3>
+          <h4>Sort by</h4>
+          <select v-model="setting.sortBy">
+            <option v-for="option in sortOptions" :value="option.value">{{option.name}}</option>
+          </select>
+
+          <h4>Refresh when</h4>
+          <select v-model="setting.refreshWhen">
+            <option v-for="option in refreshTimes" :value="option.value">{{option.name}}</option>
+          </select>
+
+        </div>
         <div v-else>
           <h1>Something Wrong!</h1>
         </div>

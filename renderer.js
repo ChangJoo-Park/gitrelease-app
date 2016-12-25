@@ -1,8 +1,9 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
-const {ipcRenderer} = require('electron')
+const {ipcRenderer} = require('electron');
 const open = require('open');
+const MinToMillis = 60000;
 const markedRenderer = new marked.Renderer();
 markedRenderer.link = function(href, title, text) {
   var external, newWindow, out;
@@ -17,7 +18,19 @@ markedRenderer.link = function(href, title, text) {
   }
   return out += ">" + text + "</a>";
 };
-
+const SORT_OPTIONS = [
+        {name:'Name (DESC)', value: 'name-desc' },
+        {name:'Name (ASC)', value: 'name-asc' },
+        {name:'Updated Time (DESC)', value: 'update-desc' },
+        {name:'Updated Time (ASC)', value: 'update-asc' }
+];
+const REFRESH_TIMES = [ // value : Min
+        {name:'Every 30 Minutes', value: 30 },
+        {name:'Every Hours', value: 60 },
+        {name:'Every Two Hours', value: 120 },
+        {name:'Every Three Hours', value: 180 },
+        {name:'Every Six Hours', value: 360 }
+];
 const RepositoryComponent = Vue.component('repository', {
   template: '#repository',
   props: ['repo'],
@@ -57,7 +70,13 @@ const app = new Vue({
       requestMessage: '',
       isNoRelease: false,
       isDisabled: false,
-      isLoading: false
+      isLoading: false,
+      refreshTimes: REFRESH_TIMES,
+      sortOptions: SORT_OPTIONS,
+      setting: {
+        sortBy: 'name-desc',
+        refreshWhen: 30
+      }
     }
   },
   watch: {
@@ -87,9 +106,31 @@ const app = new Vue({
   computed: {
     sortedRepositories: function () {
       return this.repositories.sort(function (a, b) {
-        return (new Date(b.latest_release.published_at).getTime()) -
-               (new Date(a.latest_release.published_at).getTime())
-      });
+        let sorted = 1;
+        let nameA = '';
+        let nameB = '';
+        switch(this.setting.sortBy) {
+          case 'name-desc':
+            nameA = a.full_name.toUpperCase();
+            nameB = b.full_name.toUpperCase();
+            sorted = nameA < nameB;
+          break;
+          case 'name-asc':
+            nameA = a.full_name.toUpperCase();
+            nameB = b.full_name.toUpperCase();
+            sorted = nameA > nameB;
+          break;
+          case 'updated-desc':
+            sorted = (new Date(b.latest_release.published_at).getTime()) -
+             (new Date(a.latest_release.published_at).getTime());
+          break;
+          case 'updated-asc':
+            sorted = (new Date(a.latest_release.published_at).getTime()) -
+              (new Date(b.latest_release.published_at).getTime());
+          break;
+        }
+        return sorted;
+      }.bind(this));
     },
     repositoriesCount: function () {
       if(this.repositories.length === 1) {
@@ -164,6 +205,7 @@ const app = new Vue({
           this.repositories.push(this.newRepository);
           this.requestMessage = '';
           this.isNoRelease = false;
+          this.spawnNotification('New Repository!!', `${this.newRepository.full_name} - ${this.newRepository.latest_release.tag_name}`);
           this.changeState('list');
         }.bind(this))
         // On Error
@@ -185,6 +227,13 @@ const app = new Vue({
       ipcRenderer.on('db:remove-repository-response', function () {
         this.repositories.splice(index, 1)
       }.bind(this))
+    },
+    spawnNotification: function (theTitle, theBody,theIcon) {
+      var options = {
+          body: theBody,
+          icon: theIcon
+      }
+      var n = new Notification(theTitle,options);
     }
   }
 });
