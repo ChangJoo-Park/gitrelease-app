@@ -63,8 +63,8 @@
                         <span>{{newRepository.full_name}}</span>
                       </h4>
                     </div>
-                    <button v-if="!isNoRelease">Save</button>
-                    <button class="pseudo" v-if="isNoRelease" @click.prevent="changeState('list')">Close</button>
+                    <button v-if="!isNoRelease" :disabled="isDisabled">Save</button>
+                    <button class="pseudo" v-if="isNoRelease || isDisabled" @click.prevent="changeState('list')">Close</button>
                   </div>
                   <div v-if="requestMessage">{{requestMessage}}</pre>
                 </div>
@@ -99,11 +99,13 @@
             Remove
           </button>
           <button class="pseudo button-small" v-on:click="toggleOpen">
-            <span v-if="isOpen">Close Details</span>
-            <span v-else>Open Details</span>
+            <span v-if="isOpen">Close</span>
+            <span v-else>Details</span>
           </button>
         </div>
-        <footer class="repo-detail" v-show="isOpen" v-html="compiledMarkdown"></footer>
+        <footer class="repo-detail" v-show="isOpen" v-html="compiledMarkdown">
+          <button>Button!</button>
+        </footer>
       </div>
     </template>
   </body>

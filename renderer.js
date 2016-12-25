@@ -40,6 +40,7 @@ const app = new Vue({
       newRepository: '',
       requestMessage: '',
       isNoRelease: false,
+      isDisabled: false,
       isLoading: false
     }
   },
@@ -48,6 +49,7 @@ const app = new Vue({
       this.newRepositoryName = '';
       this.newRepository = '';
       this.requestMessage = '';
+      this.isDisabled = false;
     },
     newRepositoryName: function (newName) {
       // newName 형식 체크 해야함
@@ -62,6 +64,7 @@ const app = new Vue({
       this.newRepository = '';
       this.requestMessage = '';
       this.isLoading = true;
+      this.isDisabled = false;
       this.getGithub()
     }
   },
@@ -132,15 +135,30 @@ const app = new Vue({
         return;
       }
       this.requestMessage = 'Load Latest Release...';
-      this.getLatestRelease(this.newRepository, function(data){
+      this.getLatestRelease(this.newRepository, function(data) {
         let latestRelease = data;
         this.newRepository.latest_release = latestRelease;
-        this.repositories.push(this.newRepository);
-        this.requestMessage = '';
-        this.isNoRelease = false;
+
         ipcRenderer.send('db:add-repository',this.newRepository);
-        ipcRenderer.on('db:add-repository-response', function () {
+
+        ipcRenderer.on('db:add-repository-response-success', function (event, args) {
+          console.log('db:add-repository-response-success');
+          const isExists = this.repositories.indexOf(args);
+          if(isExists !== -1) {
+            return;
+          }
+
+          this.repositories.push(this.newRepository);
+          this.requestMessage = '';
+          this.isNoRelease = false;
           this.changeState('list');
+        }.bind(this))
+        // On Error
+        ipcRenderer.on('db:add-repository-response-error', function (event, error) {
+          this.requestMessage = error.message;
+          this.isSavable = false;
+          this.isNoRelease = false;
+          this.isDisabled = true;
         }.bind(this))
       }.bind(this), function (error) {
         console.error(error);
