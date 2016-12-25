@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <link rel="stylesheet" type="text/css" href="./vendors/picnic.min.css">
+    <link rel="stylesheet" type="text/css" href="./vendors/css/fontello.css">
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
@@ -12,9 +13,15 @@
         <nav>
           <a href="#" class="brand" @click="changeState('list')">Release!!</a>
           <div class="menu">
-            <button v-if="state === 'list'" class="button-default" @click="changeState('setting')">s</button>
-            <button v-if="state === 'list'" @click="changeState('new')">+</button>
-            <button class="button-default" v-if="state !== 'list'" @click="changeState('list')">x</button>
+            <button v-if="state === 'list'" class="button-default" @click="changeState('setting')">
+              <i class="icon-cog"></i>
+            </button>
+            <button v-if="state === 'list'" @click="changeState('new')">
+              <i class="icon-plus"></i>
+            </button>
+            <button class="button-default" v-if="state !== 'list'" @click="changeState('list')">
+              <i class="icon-cancel"></i>
+            </button>
           </div>
         </nav>
       </div>
@@ -50,7 +57,7 @@
                 </div>
                 <div v-else>
                   <div v-if="newRepository">
-                    <div>
+                    <div class="card card-demo">
                       <h4>
                         <img class="img-avatar" :src="newRepository.owner.avatar_url">
                         <span>{{newRepository.full_name}}</span>

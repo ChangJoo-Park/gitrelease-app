@@ -50,3 +50,8 @@ html {
 .text-right {
   text-align: right;
 }
+
+.card-demo {
+  margin-top: 10px;
+  padding: 10px;
+}
