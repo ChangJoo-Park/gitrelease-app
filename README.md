@@ -5,6 +5,8 @@ Only Tested on MacOS Sierra.
 
 ## Key Features
 
+- App on menubar
+![tray](http://i.imgur.com/5w10Ceo.png)
 - List added projects
 ![Main](http://i.imgur.com/BqJQ7ZT.png)
 - Show details
