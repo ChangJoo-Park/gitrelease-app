@@ -264,13 +264,13 @@ const app = new Vue({
         vm.isUnReloadable = false;
       }, 1000)
       this.repositories.forEach(function(repo) {
-        console.log(`Check ${repo.full_name}, current ${repo.latest_release.tag_name}`);
+        console.log(`Check ${repo.full_name}, current ${repo.latest_release.tag_name} ${new Date()}`);
         vm.getLatestRelease(repo, function (latestRelease) {
           if (repo.latest_release.tag_name !== latestRelease.tag_name) {
             repo.latest_release = latestRelease;
             vm.spawnNotification('Updated!!', repo.full_name);
           } else  {
-            console.log(`same ${latestRelease.tag_name}`);
+            console.log(`same ${latestRelease.tag_name} ${new Date()}`);
           }
         }, function () {})
       })
