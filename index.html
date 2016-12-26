@@ -15,7 +15,7 @@
           <div class="menu">
             <button
               class="button-default"
-              v-if="state === 'list'"
+              v-if="state === 'list' && repositories.length > 0"
               @click="checkUpdatedRepositories"
               :disabled="isUnReloadable">
               <i class="icon-arrows-cw"></i>
@@ -110,6 +110,7 @@
                   {{repo.latest_release.tag_name}}
                 </a>
               </h4>
+              <p class="repo-description">{{repo.description}}</p>
             </div>
           </div>
         </header>

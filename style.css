@@ -43,6 +43,12 @@ html {
   vertical-align: middle
 }
 
+.repo-description {
+  margin-top: 5px;
+  font-weight: normal;
+  font-size: 0.7em;
+}
+
 .repo-detail {
   width: 100%;
   font-size: .8em;

@@ -71,9 +71,9 @@ ipcMain.on('db:add-repository', function(event, repo) {
 })
 
 ipcMain.on('db:remove-repository', function(event, repo) {
-  db.repos.remove({ _id: repo._id }, {}, function (err, numRemoved) {
+  db.repos.remove({ _id: repo.target._id }, {}, function (err, numRemoved) {
     console.log('Remove!!', numRemoved)
-    event.sender.send('db:remove-repository-response')
+    event.sender.send('db:remove-repository-response', repo.index)
   })
 })
 

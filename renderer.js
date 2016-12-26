@@ -72,6 +72,32 @@ const app = new Vue({
       this.repositories = repos;
       this.checkUpdatedRepositories();
     }.bind(this))
+
+    ipcRenderer.on('db:add-repository-response-success', function (event, args) {
+      console.log('db:add-repository-response-success');
+      const isExists = this.repositories.indexOf(args);
+      if(isExists !== -1) {
+        return;
+      }
+      this.repositories.push(this.newRepository);
+      this.requestMessage = '';
+      this.isNoRelease = false;
+      this.spawnNotification('New Repository!!', `${this.newRepository.full_name} - ${this.newRepository.latest_release.tag_name}`);
+      this.changeState('list');
+    }.bind(this))
+    // On Error
+    ipcRenderer.on('db:add-repository-response-error', function (event, error) {
+      console.log('db:add-repository-response-error');
+      this.requestMessage = error.message;
+      this.isSavable = false;
+      this.isNoRelease = false;
+      this.isDisabled = true;
+    }.bind(this))
+
+    ipcRenderer.on('db:remove-repository-response', function (event, index) {
+      console.log('db:remove-repository-response')
+      this.repositories.splice(index, 1)
+    }.bind(this))
   },
   data: function () {
     return {
@@ -217,38 +243,15 @@ const app = new Vue({
         this.newRepository.latest_release = latestRelease;
         const addTarget = JSON.parse(JSON.stringify(this.newRepository));
         ipcRenderer.send('db:add-repository',addTarget);
-        ipcRenderer.on('db:add-repository-response-success', function (event, args) {
-          console.log('db:add-repository-response-success');
-          const isExists = this.repositories.indexOf(args);
-          if(isExists !== -1) {
-            return;
-          }
-          this.repositories.push(this.newRepository);
-          this.requestMessage = '';
-          this.isNoRelease = false;
-          this.spawnNotification('New Repository!!', `${this.newRepository.full_name} - ${this.newRepository.latest_release.tag_name}`);
-          this.changeState('list');
-        }.bind(this))
-        // On Error
-        ipcRenderer.on('db:add-repository-response-error', function (event, error) {
-          this.requestMessage = error.message;
-          this.isSavable = false;
-          this.isNoRelease = false;
-          this.isDisabled = true;
-        }.bind(this))
       }.bind(this), function (error) {
         console.error(error);
         this.requestMessage = 'There is no release.';
         this.isNoRelease = true;
       }.bind(this));
-
     },
     removeRepository: function (index) {
       const removeTarget = JSON.parse(JSON.stringify(this.repositories[index]))
-      ipcRenderer.send('db:remove-repository', removeTarget);
-      ipcRenderer.on('db:remove-repository-response', function () {
-        this.repositories.splice(index, 1)
-      }.bind(this))
+      ipcRenderer.send('db:remove-repository', { target:removeTarget, index: index });
     },
     spawnNotification: function (theTitle, theBody,theIcon) {
       var options = {
