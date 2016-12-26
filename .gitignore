@@ -1,5 +1,16 @@
 node_modules
 setting.json
 repo.json
+<<<<<<< HEAD
 release-builds
 
+=======
+
+setting.json
+
+repo.json
+>>>>>>> origin/master
+
+repo.json
+
+setting.json
