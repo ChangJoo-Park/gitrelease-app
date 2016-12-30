@@ -1,0 +1,13 @@
+{
+  "name": "gitrelease-app",
+  "version": "0.0.0",
+  "description": "Simple Github project tracker",
+  "main": "electron.js",
+  "dependencies": {
+    "vue": "^2.0.1",
+    "vue-electron": "^1.0.0",
+    "vuex": "^2.0.0"
+  },
+  "devDependencies": {},
+  "author": "pcjpcj2@gmail.com"
+}
