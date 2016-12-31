@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="">
+    <h2 class="md-title">New Repository</h2>
     <form @submit.stop.prevent="submit">
       <md-input-container :class="{ 'md-input-invalid' : hasError }">
         <label>Owner/Repository</label>
@@ -7,6 +8,18 @@
         <span v-if="hasError" :class="{ 'md-error' : hasError }">{{message.text}}</span>
       </md-input-container>
     </form>
+    <h4>preview</h4>
+    <md-list class="md-double-line md-dense">
+      <md-list-item>
+        <md-avatar>
+          <img src="https://placeimg.com/40/40/people/1" alt="People">
+        </md-avatar>
+        <div class="md-list-text-container">
+          <span>vuejs/vue - <strong>v0.0.0</strong></span>
+          <span>ABCD</span>
+        </div>
+      </md-list-item>
+    </md-list>
     <transition name="float-button-transition" enter-active-class="animated zoomIn" leave-active-class="animated zoomOut">
       <md-button
         class="md-icon-button md-raised md-mini md-success md-fab md-fab-bottom-right"

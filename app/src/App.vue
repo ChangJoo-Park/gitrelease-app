@@ -46,6 +46,8 @@
       const vm = this
       // Setting
       ipcRenderer.on('db:response-setting', function (event, setting) {
+        console.log('response-setting')
+        vm.$store.dispatch('updateSetting', setting)
         vm.isOnline = navigator.onLine
         setInterval(() => { vm.isOnline = navigator.onLine }, 1000)
         setInterval(function () {

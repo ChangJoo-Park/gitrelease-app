@@ -49,8 +49,8 @@ mb.on('ready', function () {
       } else {
         const defaultSetting = {
           id: 'default',
-          sortBy: 'name-desc',
-          refreshWhen: 30
+          sort: 'name-desc',
+          refresh: 30
         }
         db.setting.insert(defaultSetting, function (err, newSetting) {
           console.log('new setting', newSetting);
@@ -99,7 +99,7 @@ ipcMain.on('db:remove-repository', function(event, repo) {
 
 ipcMain.on('db:update-setting', function(event, newSetting) {
   console.log(newSetting);
-  db.setting.update({ id: newSetting.id }, { $set: { sortBy: newSetting.sortBy, refreshWhen: newSetting.refreshWhen}}, {} , function (){
-
+  db.setting.update({ _id: newSetting._id }, { $set: { sort: newSetting.sort, refresh: newSetting.refresh }}, {} , function (){
+    event.sender.send('db:update-setting-response')
   })
 })
