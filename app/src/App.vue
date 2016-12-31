@@ -24,8 +24,11 @@
   import NewRepoView from './components/NewRepoView'
   import RepoListView from './components/RepoListView'
   import SettingView from './components/SettingView'
+  import { ipcRenderer } from 'electron'
+  const MinToMillis = 60000
 
   export default {
+    store,
     components: {
       Navigation,
       FooterView,
@@ -39,20 +42,68 @@
       }
     },
     created: function () {
-      this.isOnline = navigator.onLine
-      setInterval(() => { this.isOnline = navigator.onLine }, 1000)
+      ipcRenderer.send('db:initialize')
+      const vm = this
+      // Setting
+      ipcRenderer.on('db:response-setting', function (event, setting) {
+        vm.isOnline = navigator.onLine
+        setInterval(() => { vm.isOnline = navigator.onLine }, 1000)
+        setInterval(function () {
+          if (vm.isOnline && vm.repositories.length > 0) {
+            vm.checkUpdatedRepositories()
+          }
+        }, setting.refreshWhen * MinToMillis)
+      })
+
+      ipcRenderer.on('db:response-repo', function (event, repos) {
+        console.log('bind repos', repos)
+        vm.$store.dispatch('updateRepository', repos)
+        vm.checkUpdatedRepositories()
+      })
     },
     watch: {
-      isOnline: function (newVal, oldVal) {
-        console.log(newVal)
+      isOnline: function (newConnection, oldConnection) {
+        if (newConnection && this.repositories.length > 0) {
+          this.checkUpdatedRepositories()
+        }
       }
     },
     computed: {
       currentState: function () {
         return this.$store.getters.currentState
+      },
+      repositories: function () {
+        return this.$store.getters.mainRepositories
       }
     },
-    store
+    methods: {
+      checkUpdatedRepositories: function () {
+        const vm = this
+        if (vm.repositories.length === 0) {
+          console.log('no repositories')
+          return
+        }
+        vm.repositories.forEach(function (repo) {
+          console.log(`Check ${repo.full_name}, current ${repo.latest_release.tag_name} ${new Date()}`)
+          vm.getLatestRepositories(repo)
+          .then(function (latestRelease) {
+            // vuex 호출
+            // repo 처리
+            vm.$store.dispatch('updateRepository')
+          })
+          .catch(function () {})
+        })
+      },
+      getLatestRepositories: function (repo) {
+        const promise = new Promise(function (resolve, reject) {
+          // 현재 repo와 다르면 resolve
+          resolve()
+          reject()
+        })
+
+        return promise
+      }
+    }
   }
 </script>
 
