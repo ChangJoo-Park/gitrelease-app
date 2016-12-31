@@ -7,21 +7,21 @@
         </md-avatar>
 
         <div class="md-list-text-container">
-          <span>vuejs/vue</span>
+          <span>vuejs/vue - <strong>v0.0.0</strong></span>
           <span>ABCD</span>
         </div>
 
         <md-list-expand>
           <div class="item-actions">
-            <md-button class="md-icon-button md-dense">
+            <md-button class="md-icon-button md-dense" @click="openURL">
               <md-icon>home</md-icon>
               <md-tooltip md-delay="200" md-direction="left">Show Github Repository</md-tooltip>
             </md-button>
-            <md-button class="md-icon-button md-dense">
+            <md-button class="md-icon-button md-dense" @click="openURL">
               <md-icon>label</md-icon>
               <md-tooltip md-delay="200" md-direction="left">Open Github Release note</md-tooltip>
             </md-button>
-            <md-button class="md-icon-button md-dense">
+            <md-button class="md-icon-button md-dense" @click="removeReposotiry">
               <md-icon>delete</md-icon>
               <md-tooltip md-delay="200" md-direction="left">Remove this repo</md-tooltip>
             </md-button>
@@ -38,7 +38,15 @@
 
 <script>
 export default {
-  name: 'repo-list-view'
+  name: 'repo-list-view',
+  methods: {
+    openURL: function () {
+      window.open('http://google.com')
+    },
+    removeReposotiry: function () {
+      console.log(this)
+    }
+  }
 }
 </script>
 
