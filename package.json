@@ -77,6 +77,9 @@
     "webpack-merge": "^0.14.1"
   },
   "dependencies": {
+    "axios": "^0.15.3",
+    "lodash": "^4.17.3",
+    "marked": "^0.3.6",
     "menubar": "^5.2.0",
     "nedb": "^1.8.0",
     "open": "0.0.5",

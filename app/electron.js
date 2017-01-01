@@ -34,7 +34,8 @@ const mb = Menubar({
   height: 400,
   minWidth: 400,
   minHeight: 400,
-  preloadWindow: true
+  preloadWindow: true,
+  alwaysOnTop: true
 })
 
 mb.on('ready', function () {
@@ -75,6 +76,7 @@ mb.on('ready', function () {
 
 
 ipcMain.on('db:add-repository', function(event, repo) {
+  console.log(repo.id)
   db.repos.findOne({ id: repo.id }, function (err, doc) {
     if(doc) {
       console.log('is Exists', doc);
@@ -83,15 +85,17 @@ ipcMain.on('db:add-repository', function(event, repo) {
       });
       return;
     }
-
+    console.log('Start Add', repo.id)
     db.repos.insert(repo, function (err, newDoc) {
+      console.log('Add Success', repo.id)
       event.sender.send('db:add-repository-response-success', newDoc);
     })
   })
 })
 
 ipcMain.on('db:remove-repository', function(event, repo) {
-  db.repos.remove({ _id: repo.target._id }, {}, function (err, numRemoved) {
+  console.log('db:remove-repository', repo._id)
+  db.repos.remove({ _id: repo._id }, {}, function (err, numRemoved) {
     console.log('Remove!!', numRemoved)
     event.sender.send('db:remove-repository-response', repo.index)
   })

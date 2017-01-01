@@ -29,7 +29,7 @@
       leave-active-class="animated zoomOut"
     >
       <md-button
-        class="md-icon-button md-raised md-mini md-primary md-fab md-fab-bottom-right"
+        class="md-icon-button md-raised md-mini md-primary md-fab md-fab-custom"
         v-if="isMainView"
         @click="changeViewState('new')"
       >

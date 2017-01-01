@@ -18,13 +18,14 @@
           </md-option>
         </md-select>
       </md-input-container>
-      <md-button class="md-dense" @click="openURL('https://github.com/ChangJoo-Park/gitrelease-app')">
-        Github Repository
-      </md-button>
-      <md-button class="md-dense" @click="openURL('https://github.com/ChangJoo-Park/gitrelease-app/issues')">
-        Report an Issue
-      </md-button>
-
+      <div class="button-wrapper">
+        <md-button class="md-dense" @click="openURL('https://github.com/ChangJoo-Park/gitrelease-app')">
+          Github Repository
+        </md-button>
+        <md-button class="md-dense" @click="openURL('https://github.com/ChangJoo-Park/gitrelease-app/issues')">
+          Report an Issue
+        </md-button>
+      </div>
     </div>
   </div>
 </template>
@@ -67,4 +68,7 @@ export default {
 </script>
 
 <style lang="scss">
+.button-wrapper {
+  text-align: center;
+}
 </style>

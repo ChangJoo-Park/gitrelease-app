@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="">
+  <div>
     <navigation v-bind:connected="isOnline"></navigation>
     <div v-if="isOnline">
       <setting-view class="container" v-if="currentState === 'setting'"></setting-view>
@@ -13,7 +13,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -54,12 +53,12 @@
           if (vm.isOnline && vm.repositories.length > 0) {
             vm.checkUpdatedRepositories()
           }
-        }, setting.refreshWhen * MinToMillis)
+        }, setting.refresh * MinToMillis)
       })
 
       ipcRenderer.on('db:response-repo', function (event, repos) {
         console.log('bind repos', repos)
-        vm.$store.dispatch('updateRepository', repos)
+        vm.$store.dispatch('initializeRepositories', repos)
         vm.checkUpdatedRepositories()
       })
     },
@@ -91,7 +90,7 @@
           .then(function (latestRelease) {
             // vuex 호출
             // repo 처리
-            vm.$store.dispatch('updateRepository')
+            // vm.$store.dispatch('updateRepository')
           })
           .catch(function () {})
         })
@@ -135,5 +134,11 @@
 .wanring-text {
   font-size: 2em;
   line-height: 2.3em;
+}
+.md-fab-custom {
+  z-index: 1;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
 }
 </style>
